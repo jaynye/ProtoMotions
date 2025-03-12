@@ -22,7 +22,7 @@ from smpl_sim.smpllib.smpl_joint_names import (
 from smpl_sim.smpllib.smpl_local_robot import SMPL_Robot
 from tqdm import tqdm
 
-from poselib.skeleton.skeleton3d import SkeletonMotion, SkeletonState, SkeletonTree
+from poselib.poselib.skeleton.skeleton3d import SkeletonMotion, SkeletonState, SkeletonTree
 import time
 from datetime import timedelta
 
@@ -43,7 +43,7 @@ def main(
 ):
     if robot_type is None:
         robot_type = humanoid_type
-    elif robot_type in ["h1"]:
+    elif robot_type in ["h1", "g1"]:
         assert (
             force_retarget
         ), f"Data is either SMPL or SMPL-X. The {robot_type} robot must use the retargeting pipeline."
@@ -108,7 +108,7 @@ def main(
 
     smpl_local_robot = SMPL_Robot(
         robot_cfg,
-        data_dir="data/smpl",
+        data_dir="/home/jmni/mocap/smplx",
     )
 
     if humanoid_mjcf_path is not None:
@@ -124,7 +124,7 @@ def main(
     total_files_to_process = 0
     processed_files = 0
     for folder_name in folder_names:
-        if "retarget" in folder_name or "smpl" in folder_name or "h1" in folder_name:
+        if "retarget" in folder_name or "smpl" in folder_name or "h1" in folder_name or "g1" in folder_name:
             continue
         data_dir = amass_root_dir / folder_name
         output_dir = amass_root_dir / f"{folder_name}-{append_name}"
@@ -162,7 +162,7 @@ def main(
     print(f"Total files to process: {total_files_to_process}/{total_files}")
 
     for folder_name in folder_names:
-        if "retarget" in folder_name or "smpl" in folder_name or "h1" in folder_name:
+        if "retarget" in folder_name or "smpl" in folder_name or "h1" in folder_name or "g1" in folder_name:
             # Ignore folders where we store motions retargeted to AMP
             continue
 
@@ -416,7 +416,7 @@ def main(
                             outpath.stem + "_flipped" + outpath.suffix
                         )
                     print(f"Saving to {outpath}")
-                    if robot_type == "h1":
+                    if robot_type in ["h1", "g1"]:
                         torch.save(new_sk_motion, str(outpath))
                     else:
                         new_sk_motion.to_file(str(outpath))
